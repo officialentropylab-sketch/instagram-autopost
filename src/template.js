@@ -30,18 +30,22 @@ function rich(text) {
     .replace(/\n/g, "<br>");
 }
 
+// 이모지는 실행 환경에 설치된 글꼴을 쓴다 (Windows: Segoe UI Emoji, GitHub 서버: Noto Color Emoji).
+// 이모지 웹폰트는 브라우저 버전에 따라 빈칸으로 그려지는 일이 있어 쓰지 않는다.
+const EMOJI_FONTS = "'Segoe UI Emoji', 'Noto Color Emoji', 'Apple Color Emoji'";
+
 const CSS = `
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { width: ${SLIDE_WIDTH}px; height: ${SLIDE_HEIGHT}px; overflow: hidden; }
 body {
   position: relative;
-  font-family: 'Gowun Dodum', 'Noto Color Emoji', sans-serif;
+  font-family: 'Gowun Dodum', ${EMOJI_FONTS}, sans-serif;
   color: #fff;
   word-break: keep-all;
   overflow-wrap: break-word;
   --fit: 1;
 }
-.emo { font-family: 'Noto Color Emoji', sans-serif; -webkit-text-stroke: 0; font-style: normal; }
+.emo { font-family: ${EMOJI_FONTS}, sans-serif; -webkit-text-stroke: 0; font-style: normal; }
 .bg { position: absolute; inset: -40px; background-size: cover; background-position: center; }
 .bg.photo { filter: blur(5px) saturate(.85); }
 .overlay { position: absolute; inset: 0; }
@@ -74,7 +78,7 @@ body {
   text-align: center;
 }
 .pill {
-  font-family: 'Jua', 'Noto Color Emoji', sans-serif;
+  font-family: 'Jua', ${EMOJI_FONTS}, sans-serif;
   font-size: 40px; letter-spacing: 1px; color: var(--ink);
   background: var(--accent-soft);
   padding: 16px 38px 12px; border-radius: 18px;
@@ -82,7 +86,7 @@ body {
   margin-bottom: 52px;
 }
 .cover h1 {
-  font-family: 'Jua', 'Noto Color Emoji', sans-serif; font-weight: 400;
+  font-family: 'Jua', ${EMOJI_FONTS}, sans-serif; font-weight: 400;
   width: 100%; display: flex; flex-direction: column; align-items: center;
 }
 .cover h1 span.line {
@@ -92,7 +96,7 @@ body {
 }
 .cover h1 span.line.hl { color: var(--accent-soft); }
 .cover .sub {
-  font-family: 'Jua', 'Noto Color Emoji', sans-serif;
+  font-family: 'Jua', ${EMOJI_FONTS}, sans-serif;
   font-size: 46px; line-height: 1.4; margin-top: 50px; max-width: 900px;
   color: #fff; -webkit-text-stroke: 10px var(--ink); paint-order: stroke fill;
   text-wrap: balance;
@@ -109,12 +113,12 @@ body {
   display: flex; flex-direction: column; align-items: center; text-align: center;
 }
 .h-title {
-  font-family: 'Jua', 'Noto Color Emoji', sans-serif;
+  font-family: 'Jua', ${EMOJI_FONTS}, sans-serif;
   font-size: 58px; line-height: 1.3; text-wrap: balance;
 }
 .h-sub { font-size: 32px; margin-top: 16px; color: rgba(255, 255, 255, .82); text-wrap: balance; }
 .chip {
-  font-family: 'Jua', 'Noto Color Emoji', sans-serif;
+  font-family: 'Jua', ${EMOJI_FONTS}, sans-serif;
   font-size: 44px; line-height: 1.3; margin-top: 46px;
   padding: 18px 44px 14px; border-radius: 18px;
   background: rgba(255, 255, 255, .15); border: 2px solid rgba(255, 255, 255, .34);
@@ -134,7 +138,7 @@ em {
   padding: 0 3px;
 }
 .act-h {
-  font-family: 'Jua', 'Noto Color Emoji', sans-serif;
+  font-family: 'Jua', ${EMOJI_FONTS}, sans-serif;
   font-size: calc(40px * var(--fit)); color: var(--accent-soft);
   margin-top: calc(40px * var(--fit));
 }
@@ -154,20 +158,20 @@ footer {
 /* ---------- 한눈에 보기 ---------- */
 .sum li { margin-top: calc(34px * var(--fit)); }
 .sum li:first-child { margin-top: 0; }
-.sum .t { font-family: 'Jua', 'Noto Color Emoji', sans-serif; font-size: calc(42px * var(--fit)); }
+.sum .t { font-family: 'Jua', ${EMOJI_FONTS}, sans-serif; font-size: calc(42px * var(--fit)); }
 .sum .t b { font-weight: 400; color: var(--accent-soft); margin-right: 8px; }
 .sum .d { color: rgba(255, 255, 255, .86); font-size: calc(34px * var(--fit)); }
 .sum-close { margin-top: calc(48px * var(--fit)); font-size: calc(36px * var(--fit)); }
 
 /* ---------- 마무리 ---------- */
 .outro-h {
-  font-family: 'Jua', 'Noto Color Emoji', sans-serif;
+  font-family: 'Jua', ${EMOJI_FONTS}, sans-serif;
   font-size: calc(64px * var(--fit)); line-height: 1.35; text-wrap: balance;
   margin-bottom: calc(40px * var(--fit));
 }
 .cta { margin-top: calc(56px * var(--fit)); display: flex; flex-direction: column; gap: 18px; align-items: center; }
 .cta div {
-  font-family: 'Jua', 'Noto Color Emoji', sans-serif; font-size: calc(38px * var(--fit));
+  font-family: 'Jua', ${EMOJI_FONTS}, sans-serif; font-size: calc(38px * var(--fit));
   padding: 18px 40px 14px; border-radius: 999px; color: var(--ink); background: var(--accent-soft);
 }
 .cta div:last-child { background: #fff; }
@@ -205,7 +209,6 @@ function page({ kind, body, theme, background }) {
 <meta charset="utf-8">
 <link rel="stylesheet" href="${fontCss("jua")}">
 <link rel="stylesheet" href="${fontCss("gowun-dodum")}">
-<link rel="stylesheet" href="${fontCss("noto-color-emoji")}">
 <style>
 :root { --accent: ${theme.accent}; --accent-soft: ${theme.accentSoft}; --ink: ${theme.ink}; }
 ${CSS}

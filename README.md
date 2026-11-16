@@ -1,15 +1,25 @@
 # 인스타그램 카드뉴스 자동 업로드
 
-매일 정해진 시간에 카드뉴스 게시물(표지 + 요약 + 본문 + 마무리, 총 7장)을 자동으로 만들어 인스타그램에 올립니다.
-GitHub의 서버에서 실행되므로 내 PC가 꺼져 있어도 올라갑니다.
+매일 정해진 시간에 카드뉴스 게시물(표지 + 요약 + 본문 + 마무리, 총 7장)을 인스타그램에 올립니다.
+GitHub의 서버에서 실행되므로 내 PC가 꺼져 있어도 올라가고, 별도의 유료 API를 쓰지 않습니다.
 
 ## 동작 순서
 
 1. 매일 오후 7시(한국 시간)에 GitHub Actions가 실행됩니다.
-2. Claude가 지금까지 올린 주제와 겹치지 않는 새 게시물의 글을 씁니다.
+2. `queue` 폴더에 미리 써 둔 게시물 중 아직 올리지 않은 것을 순서대로 하나 꺼냅니다.
 3. 글을 카드 이미지(1080×1350 JPEG)로 만들어 이 저장소의 `output/날짜/` 폴더에 저장합니다.
 4. Instagram 공식 API로 캐러셀 게시물을 올립니다.
-5. 올린 주제를 `data/history.json`에 기록합니다.
+5. 올린 게시물을 `data/history.json`에 기록합니다.
+
+업로드에 실패한 날의 게시물은 버려지지 않고 다음 날 다시 올라갑니다.
+
+## 게시물 채우기
+
+게시물 글은 `queue` 폴더에 들어 있습니다. 하루에 하나씩 쓰이므로 다 떨어지기 전에 새로 채워야 합니다.
+작성 기준과 파일 형식, 추가하는 방법은 [queue/README.md](queue/README.md)에 있습니다.
+
+- 남은 게시물이 5개 이하가 되면 Actions 실행 결과에 경고가 표시됩니다.
+- 0개가 되면 실행이 실패하고 GitHub가 이메일로 알려 줍니다.
 
 ## 설정 방법
 
@@ -21,12 +31,9 @@ GitHub의 서버에서 실행되므로 내 PC가 꺼져 있어도 올라갑니�
 | --- | --- |
 | `brand.name` | 표지 라벨에 들어가는 이름 |
 | `brand.handle` | 카드 하단에 들어가는 계정 아이디 |
-| `content.niche` | 계정이 다루는 분야 |
-| `content.audience` | 주요 독자 |
-| `content.tone` | 말투 |
-| `content.persona` | 계정에 대한 **실제** 사실. 글에서 계정·운영자 이야기는 여기 적힌 범위 안에서만 합니다. 집필진 이력처럼 내세우고 싶은 사실이 있으면 추가하세요. |
-| `content.rules` | 글을 쓸 때 반드시 지킬 규칙. 한 줄씩 추가·삭제할 수 있습니다. |
+| `content.niche`, `audience`, `tone`, `persona`, `rules` | 게시물 글을 쓸 때 참고하는 계정 정보와 규칙 |
 | `content.series` | 시리즈 이름 목록. 표지 라벨에 `생기부 엔트로피 · 세특 설계 01`처럼 번호가 붙습니다. |
+| `content.detailSlides` | 본문 카드 수 |
 | `content.fixedHashtags` | 모든 게시물에 붙는 해시태그 |
 | `theme` | 강조 색상 |
 
@@ -35,20 +42,18 @@ GitHub의 서버에서 실행되므로 내 PC가 꺼져 있어도 올라갑니�
 ### 2단계. GitHub 저장소 만들기
 
 1. [github.com](https://github.com)에 가입하고 새 저장소를 **Public**으로 만듭니다.
-   - 인스타그램 서버가 이미지를 가져가려면 공개 주소가 필요해서 Public이어야 합니다. 비밀번호·토큰은 저장소가 아닌 Secrets에 따로 보관되므로 노출되지 않습니다.
-2. 이 폴더의 파일을 저장소에 올립니다. **`node_modules` 폴더는 올리지 않습니다.**
-   - `.github` 폴더는 반드시 포함해야 합니다 (자동 실행 설정이 들어 있습니다).
-   - [GitHub Desktop](https://desktop.github.com)을 쓰면 폴더째 올리기 쉽습니다.
+   - 인스타그램 서버가 이미지를 가져가려면 공개 주소가 필요해서 Public이어야 합니다. 토큰은 저장소가 아닌 Secrets에 따로 보관되므로 노출되지 않습니다.
+2. 이 폴더의 파일을 저장소에 올립니다. `node_modules` 폴더가 있다면 올리지 않습니다.
+   - 웹 화면에 끌어다 놓으면 `.github` 폴더는 빠집니다. 그 안의 파일 2개는 GitHub에서 **Add file → Create new file**로 직접 만들어야 합니다.
 
-### 3단계. Secrets 3개 등록
+### 3단계. Secrets 2개 등록
 
 저장소의 **Settings → Secrets and variables → Actions → New repository secret**에서 등록합니다.
 
-| 이름 | 값 | 발급 위치 |
-| --- | --- | --- |
-| `ANTHROPIC_API_KEY` | Claude API 키 | [platform.claude.com](https://platform.claude.com) → API Keys (결제 수단 등록 필요) |
-| `IG_ACCESS_TOKEN` | 인스타그램 액세스 토큰 | 아래 참고 |
-| `GH_PAT` | GitHub 개인 액세스 토큰 | 아래 참고 |
+| 이름 | 값 |
+| --- | --- |
+| `IG_ACCESS_TOKEN` | 인스타그램 액세스 토큰 |
+| `GH_PAT` | GitHub 개인 액세스 토큰 |
 
 **인스타그램 토큰 발급**
 
@@ -77,25 +82,31 @@ Meta 개발자 화면의 메뉴 이름은 자주 바뀌므로 실제 화면과 �
 ## 자주 바꾸는 설정
 
 - **올리는 시간**: `.github/workflows/daily-post.yml`의 `cron: "0 10 * * *"`. UTC 기준이라 한국 시간에서 9시간을 뺀 값을 적습니다 (오후 7시 → 10). GitHub 사정에 따라 수십 분 늦게 실행될 수 있습니다.
-- **본문 카드 수**: `config.json`의 `content.detailSlides`
 - **잠시 멈추기**: Actions 탭에서 워크플로를 **Disable workflow**로 끕니다.
 
-## 내 PC에서 미리 보기
+## 내 PC에서 확인하기
 
-카드 디자인만 확인할 때는 API 키 없이 예시 게시물로 이미지를 만들 수 있습니다. [Node.js](https://nodejs.org) 20 이상이 필요합니다.
+[Node.js](https://nodejs.org) 20 이상이 필요합니다. 처음 한 번 설치합니다.
 
 ```bash
 npm install
 ```
 
+예시 게시물로 카드 디자인을 확인합니다. 결과는 `output/sample/` 폴더에 저장됩니다.
+
 ```bash
 npm run sample
 ```
 
-결과는 `output/sample/` 폴더에 저장됩니다. `sample/sample-post.json`을 고치면 다른 문구로도 확인할 수 있습니다.
+대기열에 남은 게시물을 전부 검사합니다. 게시물을 새로 추가했을 때 실행합니다.
+
+```bash
+npm run check
+```
 
 ## 알아 둘 점
 
-- 게시물은 사람의 검수 없이 올라갑니다. 처음 며칠은 올라온 게시물을 직접 확인해 보고, 마음에 들지 않는 부분은 `config.json`의 `tone`이나 `src/generate.js`의 안내문을 고쳐 주세요.
+- 게시물은 `queue`에 있는 글 그대로 올라갑니다. 올라가기 전에 읽어 보고 고칠 수 있습니다.
 - 하루에 한 번만 올라갑니다. 같은 날 다시 실행해도 이미 올린 게시물은 건너뜁니다.
+- 이모지는 실행 환경의 글꼴로 그려지므로 내 PC에서 만든 이미지와 GitHub에서 만든 이미지의 이모지 모양이 조금 다릅니다.
 - 실패하면 GitHub가 가입한 이메일로 알림을 보냅니다. Actions 탭에서 실패 이유를 볼 수 있습니다.

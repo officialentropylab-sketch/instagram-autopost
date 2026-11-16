@@ -23,6 +23,5 @@
     "accent": "#ff8fb1",
     "accentSoft": "#ffd0de",
     "ink": "#2a2430"
-  },
-  "model": "claude-opus-5-5"
+  }
 }
