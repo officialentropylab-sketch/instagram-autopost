@@ -1,5 +1,5 @@
 // 게시물 데이터(post.json)를 카드뉴스 슬라이드 HTML로 바꾼다.
-// 슬라이드 구성: 표지 → 한눈에 보기 → 본문 N장 → 마무리
+// 슬라이드 구성: 표지 → 한눈에 보기 → 본문 N장 → 전·후 예시(선택) → 마무리
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -57,8 +57,8 @@ body {
     linear-gradient(90deg, rgba(110, 90, 115, .07) 2px, transparent 2px) 0 0 / 60px 60px,
     radial-gradient(circle at 14% 16%, rgba(255, 255, 255, .95) 0, transparent 360px),
     radial-gradient(circle at 88% 84%, var(--accent-soft) 0, transparent 520px),
-    radial-gradient(circle at 80% 12%, #e6dcf7 0, transparent 420px),
-    linear-gradient(160deg, #ffeaf0 0%, #f8e6ee 50%, #ece6f6 100%);
+    radial-gradient(circle at 80% 12%, var(--cover-glow) 0, transparent 420px),
+    linear-gradient(160deg, var(--cover-from) 0%, var(--cover-to) 100%);
 }
 .inner .bg.gen {
   background:
@@ -91,7 +91,7 @@ body {
 }
 .cover h1 span.line {
   display: block; width: max-content; white-space: nowrap;
-  font-size: 124px; line-height: 1.24;
+  font-size: 148px; line-height: 1.22; /* 피드의 작은 썸네일에서도 읽히도록 가로 폭을 꽉 채운다 */
   color: #fff; -webkit-text-stroke: 18px var(--ink); paint-order: stroke fill;
 }
 .cover h1 span.line.hl { color: var(--accent-soft); }
@@ -163,6 +163,27 @@ footer {
 .sum .d { color: rgba(255, 255, 255, .86); font-size: calc(34px * var(--fit)); }
 .sum-close { margin-top: calc(48px * var(--fit)); font-size: calc(36px * var(--fit)); }
 
+/* ---------- 전·후 예시 ---------- */
+.ex { display: flex; flex-direction: column; gap: calc(38px * var(--fit)); text-align: left; }
+.ex-pair { display: flex; flex-direction: column; align-items: center; gap: calc(10px * var(--fit)); }
+.ex-row {
+  width: 100%; display: flex; gap: 22px; align-items: flex-start;
+  padding: calc(22px * var(--fit)) 30px; border-radius: 22px; line-height: 1.5;
+}
+.ex-row.before { background: rgba(255, 255, 255, .07); color: rgba(255, 255, 255, .68); }
+.ex-row.after {
+  background: rgba(255, 255, 255, .14);
+  border: 2px solid color-mix(in srgb, var(--accent-soft) 75%, transparent);
+}
+.ex-mark {
+  flex: none; width: calc(50px * var(--fit)); height: calc(50px * var(--fit)); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; margin-top: 3px;
+  font-family: 'Jua', sans-serif; font-size: calc(28px * var(--fit)); padding-top: 3px;
+}
+.before .ex-mark { background: rgba(255, 255, 255, .16); color: rgba(255, 255, 255, .75); }
+.after .ex-mark { background: var(--accent-soft); color: var(--ink); }
+.ex-arrow { border: 13px solid transparent; border-top-color: var(--accent-soft); border-bottom: 0; }
+
 /* ---------- 마무리 ---------- */
 .outro-h {
   font-family: 'Jua', ${EMOJI_FONTS}, sans-serif;
@@ -210,7 +231,10 @@ function page({ kind, body, theme, background }) {
 <link rel="stylesheet" href="${fontCss("jua")}">
 <link rel="stylesheet" href="${fontCss("gowun-dodum")}">
 <style>
-:root { --accent: ${theme.accent}; --accent-soft: ${theme.accentSoft}; --ink: ${theme.ink}; }
+:root {
+  --accent: ${theme.accent}; --accent-soft: ${theme.accentSoft}; --ink: ${theme.ink};
+  --cover-from: ${theme.coverFrom}; --cover-to: ${theme.coverTo}; --cover-glow: ${theme.coverGlow};
+}
 ${CSS}
 </style>
 </head>
@@ -293,7 +317,25 @@ export function buildSlides(post, ctx) {
     );
   });
 
-  // 4. 마무리
+  // 4. 전·후 예시 (있는 게시물만)
+  if (post.example) {
+    slides.push(
+      innerPage(post, ctx, {
+        chip: rich(post.example.heading),
+        main: `<div class="ex">${post.example.pairs
+          .map(
+            (pair) => `<div class="ex-pair">
+  <div class="ex-row before"><span class="ex-mark">X</span><span>${rich(pair.before)}</span></div>
+  <div class="ex-arrow"></div>
+  <div class="ex-row after"><span class="ex-mark">O</span><span>${rich(pair.after)}</span></div>
+</div>`,
+          )
+          .join("")}</div>`,
+      }),
+    );
+  }
+
+  // 5. 마무리
   slides.push(
     innerPage(post, ctx, {
       chip: "오늘의 정리",

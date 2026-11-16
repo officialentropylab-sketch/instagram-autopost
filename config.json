@@ -22,6 +22,39 @@
   "theme": {
     "accent": "#ff8fb1",
     "accentSoft": "#ffd0de",
-    "ink": "#2a2430"
+    "ink": "#2a2430",
+    "coverFrom": "#ffeaf0",
+    "coverTo": "#ece6f6",
+    "coverGlow": "#e6dcf7",
+    "series": {
+      "학종 기초": {
+        "accent": "#6fa8f5",
+        "accentSoft": "#cde1ff",
+        "coverFrom": "#e6f0ff",
+        "coverTo": "#ece9fb",
+        "coverGlow": "#d6e6ff"
+      },
+      "계열별 전략": {
+        "accent": "#4fc79a",
+        "accentSoft": "#c4f0dc",
+        "coverFrom": "#e4f8ee",
+        "coverTo": "#e8f1fa",
+        "coverGlow": "#d2f3e4"
+      },
+      "생기부 진단": {
+        "accent": "#a78bfa",
+        "accentSoft": "#dfd5ff",
+        "coverFrom": "#f0ebff",
+        "coverTo": "#fbe9f3",
+        "coverGlow": "#e1d8ff"
+      },
+      "탐구 주제": {
+        "accent": "#ffab5e",
+        "accentSoft": "#ffdfba",
+        "coverFrom": "#fff2e0",
+        "coverTo": "#fde9ea",
+        "coverGlow": "#ffe5c4"
+      }
+    }
   }
 }

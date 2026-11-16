@@ -42,7 +42,8 @@ async function pickBackground(seed) {
  */
 export async function renderPost(post, { config, outDir, seriesNumber, seed }) {
   const slides = buildSlides(post, {
-    theme: config.theme,
+    // 시리즈마다 표지와 강조 색을 조금씩 다르게 쓴다. 따로 정하지 않은 시리즈는 기본 색.
+    theme: { ...config.theme, ...(config.theme.series?.[post.series] ?? {}) },
     handle: config.brand.handle,
     brandName: config.brand.name,
     seriesNumber,

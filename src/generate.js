@@ -46,6 +46,13 @@ export function validatePost(post, config) {
   need(items.every((item) => isText(item.title) && isText(item.desc)), "요약 항목에 빈 칸이 있음");
   need(isText(post.summary?.closing), "요약 마무리 문장이 비어 있음");
 
+  if (post.example !== undefined) {
+    const pairs = Array.isArray(post.example?.pairs) ? post.example.pairs : [];
+    need(isText(post.example?.heading), "예시 카드의 제목이 비어 있음");
+    need(pairs.length >= 1 && pairs.length <= 3, "예시는 1~3쌍");
+    need(pairs.every((pair) => isText(pair.before) && isText(pair.after)), "예시에 빈 칸이 있음");
+  }
+
   need(isText(post.outro?.headline), "마무리 문구가 비어 있음");
   need(isTextList(post.outro?.lines, 1, 3), "마무리 문장은 1~3개");
   need(isText(post.caption), "캡션이 비어 있음");
