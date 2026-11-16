@@ -58,16 +58,19 @@ GitHub의 서버에서 실행되므로 내 PC가 꺼져 있어도 올라가고, 
 **인스타그램 토큰 발급**
 
 1. 인스타그램 앱에서 계정을 **프로페셔널 계정**(비즈니스 또는 크리에이터)으로 전환합니다.
-2. [developers.facebook.com](https://developers.facebook.com)에서 개발자로 등록하고 앱을 만듭니다. 사용 사례는 Instagram 관련 항목을 고릅니다.
-3. 앱 대시보드의 **Instagram → Instagram 로그인을 통한 API 설정**에서 내 인스타그램 계정을 추가하고 **토큰 생성**을 누릅니다.
-4. 권한 요청 화면에서 콘텐츠 게시 권한(`instagram_business_content_publish`)을 허용합니다.
-5. 생성된 토큰을 `IG_ACCESS_TOKEN`으로 등록합니다.
+2. [developers.facebook.com/apps](https://developers.facebook.com/apps)에서 앱을 만듭니다. 이용 사례는 **Instagram에서 메시지 및 콘텐츠 관리**를 고르고, 비즈니스 포트폴리오를 연결합니다.
+3. 앱 대시보드에서 **이용 사례 → 맞춤 설정 → API setup with Unified login**(통합 로그인)으로 들어갑니다.
+4. **1. 앱 구성**에서 **새로운 구성 만들기**를 눌러 구성을 만듭니다. 권한에 `instagram_content_publish`가 들어 있어야 합니다.
+5. **2. 액세스 토큰 생성**에서 내 인스타그램 계정을 테스터로 추가하고, 인스타그램 웹의 **설정 → 앱 및 웹사이트 → 테스터 초대**에서 수락합니다.
+6. **토큰 생성**을 눌러 나온 토큰을 `IG_ACCESS_TOKEN`으로 등록합니다. 토큰은 한 번만 표시됩니다.
 
 Meta 개발자 화면의 메뉴 이름은 자주 바뀌므로 실제 화면과 다를 수 있습니다.
+예전 방식(Instagram 로그인을 통한 API 설정)으로 받은 토큰도 그대로 쓸 수 있습니다. 프로그램이 토큰 종류를 자동으로 구분합니다.
 
 **GitHub 개인 액세스 토큰 발급 (`GH_PAT`)**
 
-인스타그램 토큰은 60일마다 만료됩니다. 매주 자동으로 연장해서 다시 저장하려면 이 토큰이 필요합니다.
+예전 방식(Instagram 로그인)의 토큰을 쓸 때만 필요합니다. 그 토큰은 60일마다 만료되어, 매주 자동으로 연장해서 다시 저장하는 데 이 토큰을 씁니다.
+통합 로그인 방식의 토큰은 이 방법으로 연장하지 않으므로 `GH_PAT`가 없어도 됩니다.
 
 1. GitHub **Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token**
 2. Repository access: 이 저장소만 선택

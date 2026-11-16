@@ -103,7 +103,7 @@ async function generate(config, date) {
   }
 }
 
-async function publish(date) {
+async function publish(config, date) {
   const outDir = path.join(ROOT, "output", date);
   const postPath = path.join(outDir, "post.json");
   const publishedPath = path.join(outDir, "published.json");
@@ -120,7 +120,11 @@ async function publish(date) {
   const post = await readJson(postPath);
   const imageUrls = post.slides.map((name) => `${baseUrl.replace(/\/$/, "")}/output/${date}/${name}`);
   const { publishToInstagram } = await import("./publish.js");
-  const result = await publishToInstagram({ imageUrls, caption: post.fullCaption });
+  const result = await publishToInstagram({
+    imageUrls,
+    caption: post.fullCaption,
+    handle: config.brand.handle,
+  });
   await writeJson(publishedPath, { ...result, publishedAt: new Date().toISOString() });
   console.log(`인스타그램 업로드 완료: ${result.permalink ?? result.id}`);
 }
@@ -133,7 +137,7 @@ try {
   if (command === "sample") await sample(config);
   else if (command === "check") await check(config);
   else if (command === "generate") await generate(config, date);
-  else if (command === "publish") await publish(date);
+  else if (command === "publish") await publish(config, date);
   else {
     console.error("사용법: node src/run.js <sample|check|generate|publish>");
     process.exitCode = 1;
