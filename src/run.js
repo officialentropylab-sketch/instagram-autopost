@@ -144,5 +144,9 @@ try {
   }
 } catch (error) {
   console.error(`실패: ${error.message}`);
+  if (process.env.GITHUB_ACTIONS) {
+    // GitHub Actions 실행 결과 화면에 오류 내용이 바로 보이도록 표시한다.
+    console.log(`::error::${error.message.replaceAll("%", "%25").replaceAll("\r", "%0D").replaceAll("\n", "%0A")}`);
+  }
   process.exitCode = 1;
 }
