@@ -1,0 +1,59 @@
+name: 매일 인스타그램 게시물 올리기
+
+on:
+  schedule:
+    # 매일 한국 시간 오후 7시 (GitHub는 UTC 기준이라 10시로 적는다)
+    - cron: "0 10 * * *"
+  workflow_dispatch: # Actions 탭에서 수동 실행
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-post
+  cancel-in-progress: false
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: 패키지 설치
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: 날짜 정하기 (한국 시간)
+        run: echo "POST_DATE=$(TZ=Asia/Seoul date +%F)" >> "$GITHUB_ENV"
+
+      - name: 글과 이미지 만들기
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: node src/run.js generate
+
+      - name: 만든 게시물 저장소에 올리기
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add output data
+          git diff --cached --quiet || git commit -m "post: ${POST_DATE}"
+          git push
+          echo "IMAGE_BASE_URL=https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: 인스타그램에 올리기
+        env:
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+        run: node src/run.js publish
+
+      - name: 업로드 기록 저장
+        run: |
+          git add output
+          git diff --cached --quiet || git commit -m "published: ${POST_DATE}"
+          git push
