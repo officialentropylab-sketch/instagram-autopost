@@ -1,0 +1,23 @@
+{
+  "name": "instagram-autopost",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "매일 카드뉴스 게시물을 자동 생성해 인스타그램에 올리는 프로그램",
+  "scripts": {
+    "sample": "node src/run.js sample",
+    "generate": "node src/run.js generate",
+    "publish": "node src/run.js publish",
+    "refresh-token": "node src/refresh-token.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.8.0",
+    "@fontsource/gowun-dodum": "^5.3.0",
+    "@fontsource/jua": "^5.3.0",
+    "@fontsource/noto-color-emoji": "^5.3.2",
+    "playwright": "^1.65.0"
+  }
+}
