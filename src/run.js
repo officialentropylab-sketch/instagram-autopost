@@ -7,7 +7,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { loadPost, pendingFiles } from "./generate.js";
+import { listQueue, loadPost, pendingFiles } from "./generate.js";
 import { renderPost } from "./render.js";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -60,6 +60,23 @@ async function check(config) {
   if (failures.length > 0) throw new Error(`고쳐야 할 게시물이 ${failures.length}개 있습니다.`);
 }
 
+// 표지의 시리즈 번호(예: 세특 설계 03). 대기열 순서에서 같은 시리즈의 몇 번째 주제인지로 정한다.
+// 같은 주제를 다시 올리는 파일(예: 001-repost.json)은 원래 파일과 같은 번호를 받는다.
+async function seriesNumberOf(file, post) {
+  const topics = new Set();
+  for (const name of await listQueue(QUEUE_DIR)) {
+    let other;
+    try {
+      other = name === file ? post : await readJson(path.join(QUEUE_DIR, name));
+    } catch {
+      continue;
+    }
+    if (other.series === post.series) topics.add(other.topic);
+    if (name === file) break;
+  }
+  return topics.size;
+}
+
 async function generate(config, date) {
   const outDir = path.join(ROOT, "output", date);
   const postPath = path.join(outDir, "post.json");
@@ -86,7 +103,7 @@ async function generate(config, date) {
   }
   const file = retryFile && pending.includes(retryFile) ? retryFile : pending[0];
   const post = await loadPost(QUEUE_DIR, file, config);
-  const seriesNumber = history.filter((h) => h.series === post.series).length + 1;
+  const seriesNumber = await seriesNumberOf(file, post);
 
   const slides = await renderPost(post, { config, outDir, seriesNumber, seed: date });
   await writeJson(postPath, { ...post, date, file, seriesNumber, slides });
