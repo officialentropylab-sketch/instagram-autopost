@@ -31,6 +31,7 @@ GitHub의 서버에서 실행되므로 내 PC가 꺼져 있어도 올라가고, 
 | --- | --- |
 | `brand.name` | 표지 라벨에 들어가는 이름 |
 | `brand.handle` | 카드 하단에 들어가는 계정 아이디 |
+| `cta` | 댓글 안내 문구. `keyword`(댓글 단어)와 `offer`(보내는 자료)로 표지 하단, 마무리 카드, 캡션의 안내 문구가 만들어집니다. 끄려면 `enabled`를 `false`로 바꿉니다. |
 | `content.niche`, `audience`, `tone`, `persona`, `rules` | 게시물 글을 쓸 때 참고하는 계정 정보와 규칙 |
 | `content.series` | 시리즈 이름 목록. 표지 라벨에 `생기부 엔트로피 · 세특 설계 01`처럼 번호가 붙습니다. |
 | `content.detailSlides` | 본문 카드 수 |

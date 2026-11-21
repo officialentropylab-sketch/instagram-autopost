@@ -2,6 +2,7 @@
 // 게시물 글을 쓰는 방법은 queue/README.md 참고.
 import fs from "node:fs/promises";
 import path from "node:path";
+import { ctaTexts } from "./cta.js";
 
 const CAPTION_LIMIT = 2200; // 인스타그램 캡션 최대 글자 수
 const HASHTAG_LIMIT = 30;
@@ -65,12 +66,21 @@ export function validatePost(post, config) {
   return problems;
 }
 
-/** 캡션 본문 뒤에 해시태그(게시물별 + 공통)를 붙인다. */
+/**
+ * 캡션 본문에 댓글 안내(첫 문단 바로 뒤, 마지막)와 해시태그(게시물별 + 공통)를 붙인다.
+ * 첫 문단 뒤에 넣는 이유: 피드에서 "더 보기"를 누르기 전에 보이는 범위에 들어가도록.
+ */
 export function buildFullCaption(post, config) {
   const tags = [...new Set([...post.hashtags, ...config.content.fixedHashtags])]
     .map((tag) => (tag.startsWith("#") ? tag : `#${tag}`).replace(/\s+/g, ""))
     .slice(0, HASHTAG_LIMIT);
-  return `${post.caption.trim()}\n\n${tags.join(" ")}`;
+  const paragraphs = post.caption.trim().split(/\n\s*\n/);
+  const cta = ctaTexts(config.cta);
+  if (cta) {
+    paragraphs.splice(1, 0, cta.captionTop);
+    paragraphs.push(cta.captionEnd);
+  }
+  return `${paragraphs.join("\n\n")}\n\n${tags.join(" ")}`;
 }
 
 /** 게시물 파일 하나를 읽어 검사한다. 문제가 있으면 오류를 던진다. */

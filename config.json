@@ -3,6 +3,11 @@
     "name": "생기부 엔트로피",
     "handle": "@official.entropylab"
   },
+  "cta": {
+    "enabled": true,
+    "keyword": "입시",
+    "offer": "세특 무료 자료 3종"
+  },
   "content": {
     "niche": "학교생활기록부(생기부)와 세특, 학생부종합전형 준비",
     "audience": "생기부를 어떻게 채워야 할지 막막한 고등학생, 그리고 자녀의 생기부를 함께 고민하는 학부모",

@@ -2,6 +2,7 @@
 // 슬라이드 구성: 표지 → 한눈에 보기 → 본문 N장 → 전·후 예시(선택) → 마무리
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { ctaTexts } from "./cta.js";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -101,6 +102,15 @@ body {
   color: #fff; -webkit-text-stroke: 10px var(--ink); paint-order: stroke fill;
   text-wrap: balance;
 }
+.cover .cta-badge {
+  position: absolute; bottom: 150px; left: 0; right: 0;
+  display: flex; justify-content: center;
+}
+.cover .cta-badge span.txt {
+  font-family: 'Jua', ${EMOJI_FONTS}, sans-serif; font-size: 40px; white-space: nowrap;
+  color: var(--ink); background: #fff; border: 4px solid var(--ink); border-radius: 999px;
+  padding: 18px 40px 13px; box-shadow: 0 8px 0 rgba(42, 36, 48, .16);
+}
 .cover .handle {
   position: absolute; bottom: 64px; left: 0; right: 0; text-align: center;
   font-family: 'Jua', sans-serif; font-size: 32px; letter-spacing: 1px;
@@ -196,6 +206,12 @@ footer {
   padding: 18px 40px 14px; border-radius: 999px; color: var(--ink); background: var(--accent-soft);
 }
 .cta div:last-child { background: #fff; }
+.cta .cta-main {
+  display: flex; flex-direction: column; align-items: center; gap: calc(8px * var(--fit));
+  border-radius: 28px; padding: calc(26px * var(--fit)) 46px calc(20px * var(--fit));
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent-soft) 35%, transparent);
+}
+.cta .cta-main .l2 { font-size: calc(44px * var(--fit)); }
 `;
 
 // 글자 크기 자동 맞춤: 표지 제목은 가로 폭에, 본문은 세로 높이에 맞춰 줄인다.
@@ -206,6 +222,13 @@ export const FIT_SCRIPT = `(() => {
     let size = parseFloat(getComputedStyle(el).fontSize);
     while (el.getBoundingClientRect().width > max && size > 56) {
       size -= 2;
+      el.style.fontSize = size + 'px';
+    }
+  }
+  for (const el of document.querySelectorAll('.cta-badge span.txt')) {
+    let size = parseFloat(getComputedStyle(el).fontSize);
+    while (el.getBoundingClientRect().width > 1000 && size > 28) {
+      size -= 1;
       el.style.fontSize = size + 'px';
     }
   }
@@ -271,6 +294,7 @@ const pad2 = (n) => String(n).padStart(2, "0");
  */
 export function buildSlides(post, ctx) {
   const slides = [];
+  const cta = ctaTexts(ctx.cta);
 
   // 1. 표지
   slides.push(
@@ -285,6 +309,7 @@ export function buildSlides(post, ctx) {
     <span class="line hl">${rich(post.cover.title_line2)}</span>
   </h1>
   <p class="sub">${rich(post.cover.subtitle)}</p>
+  ${cta ? `<div class="cta-badge"><span class="txt">${rich(cta.coverBadge)}</span></div>` : ""}
   <div class="handle">${escapeHtml(ctx.handle)}</div>
 </div>`,
     }),
@@ -341,10 +366,17 @@ export function buildSlides(post, ctx) {
       chip: "오늘의 정리",
       main: `<div class="outro-h">${rich(post.outro.headline)}</div>
 ${post.outro.lines.map((l) => `<p>${rich(l)}</p>`).join("")}
-<div class="cta">
+${
+  cta
+    ? `<div class="cta">
+  <div class="cta-main"><span>${rich(cta.outroLine1)}</span><span class="l2">${rich(cta.outroLine2)}</span></div>
+  <div>🔖 저장하고 ${escapeHtml(ctx.handle)} 팔로우</div>
+</div>`
+    : `<div class="cta">
   <div>🔖 저장해 두고 필요할 때 꺼내 보기</div>
   <div>${escapeHtml(ctx.handle)} 팔로우하고 다음 글 받기</div>
-</div>`,
+</div>`
+}`,
     }),
   );
 

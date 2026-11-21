@@ -45,6 +45,7 @@ export async function renderPost(post, { config, outDir, seriesNumber, seed }) {
     // 시리즈마다 표지와 강조 색을 조금씩 다르게 쓴다. 따로 정하지 않은 시리즈는 기본 색.
     theme: { ...config.theme, ...(config.theme.series?.[post.series] ?? {}) },
     handle: config.brand.handle,
+    cta: config.cta,
     brandName: config.brand.name,
     seriesNumber,
     background: await pickBackground(seed),
